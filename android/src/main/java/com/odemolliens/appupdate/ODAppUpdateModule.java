@@ -33,7 +33,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
         //FIXME: not a static method !
 
         if(this.mListener == null){
-            Log.e("AppUpdate", "AppVersionListener is not plugged !");
+            resolve.reject("AppUpdate", "react-native-app-update: Delegate is not implemented!");
             return;
         }
 
