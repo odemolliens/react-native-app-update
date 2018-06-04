@@ -21,6 +21,19 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
 
 +(void)appVersion:(RCTPromiseResolveBlock)resolve
               rejecter:(RCTPromiseRejectBlock)rejecter {
+  
+    /****/
+    id<UIApplicationDelegate> appDelegate = [[UIApplication sharedApplication] delegate];
+    
+    SEL selector = NSSelectorFromString(@"checkMigrationAppVersion:andCurrentVersion:");
+
+    if([appDelegate respondsToSelector:selector]){
+
+        [appDelegate performSelector:selector withObject:nil withObject:nil];
+    }else{
+        NSLog(@"react-native-app-update: Delegate is not implemented!");
+    }
+    /****/
     
     //Load data and return them
     NSMutableArray *elements = [[NSUserDefaults standardUserDefaults] objectForKey:@"networkData"];

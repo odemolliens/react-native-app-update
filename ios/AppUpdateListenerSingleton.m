@@ -7,28 +7,25 @@
 //
 
 #import "AppUpdateListenerSingleton.h"
-
+#import <UIKit/UIKit.h>
 
 
 @interface AppUpdateListenerSingleton()
 
-@property(nonatomic, assign) id<AppVersionListener> listener;
+@property(nonatomic, strong) id<AppVersionListener> listener;
 
 @end
 
 @implementation AppUpdateListenerSingleton
 
 
-+ (id)sharedManager {
++ (id)sharedManager:(id<AppVersionListener>)newListener {
     static AppUpdateListenerSingleton *sharedMyManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-            //Init
+        //Init
+        sharedMyManager.listener = newListener;
     });
     return sharedMyManager;
-}
-
--(void)setAppListener:(id<AppVersionListener>)newListener{
-    self.listener = newListener;
 }
 @end

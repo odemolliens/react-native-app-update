@@ -62,9 +62,9 @@
 			children = (
 				C969C18920C0471E00AC7DC4 /* AppVersionListener.h */,
 				B3E7B5881CC2AC0600A0062D /* ODAppUpdate.h */,
+				B3E7B5891CC2AC0600A0062D /* ODAppUpdate.m */,
 				C969C19920C04C7A00AC7DC4 /* AppUpdateListenerSingleton.h */,
 				C969C19A20C04C7A00AC7DC4 /* AppUpdateListenerSingleton.m */,
-				B3E7B5891CC2AC0600A0062D /* ODAppUpdate.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";

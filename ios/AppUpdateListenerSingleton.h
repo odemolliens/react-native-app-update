@@ -15,7 +15,7 @@
     
 }
 
-+ (id)sharedManager;
--(void)setAppListener:(id<AppVersionListener>)newListener;
++ (id)sharedManager:(id<AppVersionListener>)newListener;
+
 
 @end
