@@ -29,34 +29,41 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
 
     if(![appDelegate respondsToSelector:selector]){
         rejecter(0,@"react-native-app-update: Delegate is not implemented!",nil);
-    }/*else{
-        //[appDelegate performSelector:selector withObject:nil withObject:nil];
-    }*/
+    }
+    
     [self initVersioning];
     
+    NSString *currentStoredVersion = [self storedVersion];
+    NSString *currentVersion = [self currentVersion];
     
-    
-    /****/
-    
-    //Load data and return them
-    NSMutableArray *elements = [[NSUserDefaults standardUserDefaults] objectForKey:@"networkData"];
-    
-    //Forward to RN layer
-    resolve(elements);
-}
-
-+(void)initVersioning{
-    NSString *storedVersion = [self getStoredVersion];
-    if(storedVersion == nil || [storedVersion length]==0){
-        [self setStoredVersion:[self getCurrentVersion]];
+    if(![currentStoredVersion isEqualToString:currentVersion]){
+        //Execute native change
+        [appDelegate performSelector:selector withObject:nil withObject:nil];
+        
+        //Fw to RN
+        NSMutableDictionary* wrapVersionDic = [[NSMutableDictionary alloc]init];
+        [wrapVersionDic setValue:currentStoredVersion forKey:@"currentStoredVersion"];
+        [wrapVersionDic setValue:currentVersion forKey:@"currentVersion"];
+        resolve(wrapVersionDic);
+        
+        [self setStoredVersion:currentVersion];
+    }else{
+        rejecter(0,@"react-native-app-update: same version !",nil);
     }
 }
 
-+(NSString*)getCurrentVersionName{
++(void)initVersioning{
+    NSString *storedVersion = [self storedVersion];
+    if(storedVersion == nil || [storedVersion length]==0){
+        [self setStoredVersion:[self currentVersion]];
+    }
+}
+
++(NSString*)currentVersionName{
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
 }
 
-+(int)getCurrentVersionCode{
++(int)currentVersionCode{
     NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     NSArray* array = [version componentsSeparatedByString:@"."];
     
@@ -69,11 +76,11 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     }
 }
 
-+(NSString*)getCurrentVersion{
-    return [self getCurrentVersionName];
++(NSString*)currentVersion{
+    return [self currentVersionName];
 }
 
-+(NSString*)getStoredVersion{
++(NSString*)storedVersion{
     return [[NSUserDefaults standardUserDefaults] stringForKey:@"rn_app_version"];;
 }
 

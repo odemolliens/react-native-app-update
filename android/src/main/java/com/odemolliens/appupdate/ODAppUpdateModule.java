@@ -32,30 +32,30 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
     public void appVersion(final Promise resolve) {
         //FIXME: not a static method !
 
-        if(this.mListener == null){
+        if (this.mListener == null) {
             resolve.reject("AppUpdate", "react-native-app-update: Delegate is not implemented!");
             return;
         }
 
         this.initVersioning(this.reactContext);
 
-        String currentStoreVersion = getStoredVersion();
+        String currentStoredVersion = getStoredVersion();
         String currentVersion = getCurrentVersion();
 
-        if (!currentStoreVersion.equals(currentVersion)) {
+        if (!currentStoredVersion.equals(currentVersion)) {
             //Execute native change
-            this.mListener.checkMigrationAppVersion(currentStoreVersion, currentVersion);
+            this.mListener.checkMigrationAppVersion(currentStoredVersion, currentVersion);
 
             //Fw to RN
             WritableMap map = Arguments.createMap();
-            map.putString("currentStoredVersion", currentStoreVersion);
+            map.putString("currentStoredVersion", currentStoredVersion);
             map.putString("currentVersion", currentVersion);
             resolve.resolve(map);
 
             //Update current version stored
             this.setStoredVersion(currentVersion);
-        }else{
-            resolve.reject(currentVersion, "same version");
+        } else {
+            resolve.reject(currentVersion, "react-native-app-update: same version !");
         }
 
     }
