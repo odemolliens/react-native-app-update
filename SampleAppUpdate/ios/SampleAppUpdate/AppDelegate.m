@@ -9,20 +9,11 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-#import <ODAppUpdate/AppUpdateListenerSingleton.h>
-#import <ODAppUpdate/AppVersionListener.h>
-
-@interface AppDelegate()<AppVersionListener>
-
-@end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  
-  [[AppUpdateListenerSingleton sharedManager]setAppListener:self];
-  
   NSURL *jsCodeLocation;
 
   jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
@@ -39,12 +30,6 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   return YES;
-}
-
--(void)checkMigrationAppVersion:(NSString*)previousversion andCurrentVersion:(NSString*)currentversion{
-  if([previousversion isEqualToString:@"1.0.1"] && [currentversion isEqualToString:@"1.0.2"]){
-    
-  }
 }
 
 @end
