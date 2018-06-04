@@ -4,7 +4,9 @@
 
 #import "ODAppUpdate.h"
 
-@implementation ODAppUpdate RCT_EXPORT_MODULE()
+@implementation ODAppUpdate
+
+RCT_EXPORT_MODULE()
 
 
 /*- (dispatch_queue_t)methodQueue

@@ -6,6 +6,14 @@
 #import <UIKit/UIKit.h>
 
 @interface ODAppUpdate : NSObject <RCTBridgeModule>
+{
+    
+}
+
+
+
++(void)appVersion:(RCTPromiseResolveBlock)resolve
+         rejecter:(RCTPromiseRejectBlock)rejecter;
 
 @end
   
