@@ -24,7 +24,6 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
 +(void)appVersion:(RCTPromiseResolveBlock)resolve
               rejecter:(RCTPromiseRejectBlock)rejecter {
   
-    /****/
     id<UIApplicationDelegate> appDelegate = [[UIApplication sharedApplication] delegate];
     
     SEL selector = NSSelectorFromString(@"checkMigrationAppVersion:andCurrentVersion:");
@@ -36,24 +35,37 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     [self initVersioning];
     
     NSArray *currentStoredVersion = [self storedVersion];
-    NSNumber* majorStoredVersion = [currentStoredVersion objectAtIndex:0];
-    NSNumber* minorStoredVersion = [currentStoredVersion objectAtIndex:1];
-    NSNumber* versionStoredCode = [currentStoredVersion objectAtIndex:2];
+    int majorStoredVersion = [[currentStoredVersion objectAtIndex:0]intValue];
+    int minorStoredVersion = [[currentStoredVersion objectAtIndex:1]intValue];
+    int versionStoredCode = [[currentStoredVersion objectAtIndex:2]intValue];
     
     NSArray  *currentVersion = [self currentVersion];
-    NSNumber* majorCurrentVersion = [currentVersion objectAtIndex:0];
-    NSNumber* minorCurrentVersion = [currentVersion objectAtIndex:1];
-    NSNumber* versionCurrentCode = [currentVersion objectAtIndex:2];
+    int majorCurrentVersion = [[currentVersion objectAtIndex:0]intValue];
+    int minorCurrentVersion = [[currentVersion objectAtIndex:1]intValue];
+    int versionCurrentCode = [[currentVersion objectAtIndex:2]intValue];
     
     if(majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode){
-        //Execute native change
-        [appDelegate performSelector:selector withObject:nil withObject:nil];
-        
         //Fw to RN
         NSMutableDictionary* wrapVersionDic = [[NSMutableDictionary alloc]init];
-        [wrapVersionDic setValue:currentStoredVersion forKey:@"currentStoredVersion"];
-        [wrapVersionDic setValue:currentVersion forKey:@"currentVersion"];
+        
+        NSMutableDictionary* wrapStoredDic = [[NSMutableDictionary alloc]init];
+        [wrapStoredDic setValue:[NSNumber numberWithInt:majorStoredVersion] forKey:@"major"];
+        [wrapStoredDic setValue:[NSNumber numberWithInt:minorStoredVersion] forKey:@"minor"];
+        [wrapStoredDic setValue:[NSNumber numberWithInt:versionStoredCode] forKey:@"version"];
+        
+        NSMutableDictionary* wrapCurrentDic = [[NSMutableDictionary alloc]init];
+        [wrapCurrentDic setValue:[NSNumber numberWithInt:majorCurrentVersion] forKey:@"major"];
+        [wrapCurrentDic setValue:[NSNumber numberWithInt:minorCurrentVersion] forKey:@"minor"];
+        [wrapCurrentDic setValue:[NSNumber numberWithInt:versionCurrentCode] forKey:@"version"];
+        
+        [wrapVersionDic setValue:wrapStoredDic forKey:@"currentStoredVersion"];
+        [wrapVersionDic setValue:wrapCurrentDic forKey:@"currentVersion"];
+        
         resolve(wrapVersionDic);
+        
+        //Execute native change
+        [appDelegate performSelector:selector withObject:wrapStoredDic withObject:wrapCurrentDic];
+        
         [self setStoredVersion:[self buildArrayNumberToString:currentVersion]];
     }else{
         rejecter(0,@"react-native-app-update: same version !",nil);
@@ -63,9 +75,9 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
 +(void)initVersioning{
     
     NSArray *storedVersion = [self storedVersion];
-    NSNumber* majorVersion = [storedVersion objectAtIndex:0];
-    NSNumber* minorVersion = [storedVersion objectAtIndex:1];
-    NSNumber* versionCode = [storedVersion objectAtIndex:2];
+    int majorVersion = [[storedVersion objectAtIndex:0]intValue];
+    int minorVersion = [[storedVersion objectAtIndex:1]intValue];
+    int versionCode = [[storedVersion objectAtIndex:2]intValue];
     
     if(majorVersion == 0 && minorVersion == 0 && versionCode == 0){
         //Lib is not initialized

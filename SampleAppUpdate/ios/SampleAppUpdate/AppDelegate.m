@@ -41,10 +41,31 @@
   return YES;
 }
 
-- (void)checkMigrationAppVersion:(NSString *)previousversion andCurrentVersion:(NSString *)currentversion {
-  if([previousversion isEqualToString:@"1.0.1"] && [currentversion isEqualToString:@"1.0.2"]){
-    
+- (void)checkMigrationAppVersion:(NSArray*)storedVersion andCurrentVersion:(NSArray*)currentVersion {
+  
+  int majorStoredVersion = [[storedVersion objectAtIndex:0]intValue];
+  int minorStoredVersion = [[storedVersion objectAtIndex:1]intValue];
+  int versionStoredCode = [[storedVersion objectAtIndex:2]intValue];
+  
+  int majorCurrentVersion = [[currentVersion objectAtIndex:0]intValue];
+  int minorCurrentVersion = [[currentVersion objectAtIndex:1]intValue];
+  int versionCurrentCode = [[currentVersion objectAtIndex:2]intValue];
+  
+  //New version of the app
+  if(majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode){
+    if(majorCurrentVersion == 1 && majorStoredVersion == 1){
+      if (minorCurrentVersion > minorStoredVersion) {
+        //Do something
+        NSLog(@"new version minorCurrentVersion>minorStoredVersion");
+      }
+    }
   }
+  
+  if(majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode){
+    //Do something
+    NSLog(@"new version");
+  }
+  
 }
 
 @end

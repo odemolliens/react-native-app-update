@@ -9,5 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @protocol AppVersionListener
--(void)checkMigrationAppVersion:(NSString*)previousversion andCurrentVersion:(NSString*)currentversion;
+
+- (void)checkMigrationAppVersion:(NSArray*)storedVersion andCurrentVersion:(NSArray*)currentVersion;
+
 @end
