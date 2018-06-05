@@ -39,7 +39,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     int minorStoredVersion = [[currentStoredVersion objectAtIndex:1]intValue];
     int versionStoredCode = [[currentStoredVersion objectAtIndex:2]intValue];
     
-    NSArray  *currentVersion = [self currentVersion];
+    NSArray  *currentVersion = [self currentVersionName];
     int majorCurrentVersion = [[currentVersion objectAtIndex:0]intValue];
     int minorCurrentVersion = [[currentVersion objectAtIndex:1]intValue];
     int versionCurrentCode = [[currentVersion objectAtIndex:2]intValue];
@@ -66,7 +66,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
         //Execute native change
         [appDelegate performSelector:selector withObject:wrapStoredDic withObject:wrapCurrentDic];
         
-        [self setStoredVersion:[self buildArrayNumberToString:currentVersion]];
+        [self setStoredVersion:[self buildArrayNumberToString:[self currentVersionName]]];
     }else{
         rejecter(0,@"react-native-app-update: same version !",nil);
     }
@@ -81,46 +81,27 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     
     if(majorVersion == 0 && minorVersion == 0 && versionCode == 0){
         //Lib is not initialized
-       
-        [self setStoredVersion: [self buildArrayNumberToString:[self currentVersion]]];
+        [self setStoredVersion: [self buildArrayNumberToString:[self currentVersionName]]];
     }
 }
 
-
 +(NSArray*)currentVersionName{
+    
     NSString *currentVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     NSArray* array = [currentVersion componentsSeparatedByString:@"."];
     array = [self buildNSNumberArrayWithStringArray:array];
-    if([array count]==2){
+    if([array count]==3){
         return array;
     }else{
         return [self buildNSNumberArrayWithStringArray:[NSArray arrayWithObjects:@"0",@"0", nil]];
     }
 }
 
-+(int)currentVersionCode{
-    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
-    NSArray* array = [version componentsSeparatedByString:@"."];
-    
-    if([array count]==3){
-        return [[array objectAtIndex:2]intValue];
-    }else if([array count]==2){
-        return [[array objectAtIndex:1]intValue];
-    }else{
-        return 0;
-    }
-}
-
-+(NSArray*)currentVersion{
-    NSArray* arrayCurrentVersionName = [self currentVersionName];
-    return [NSArray arrayWithObjects:[arrayCurrentVersionName objectAtIndex:0],[arrayCurrentVersionName objectAtIndex:1],[self currentVersionCode], nil];
-}
-
 +(NSArray*)storedVersion{
     NSString *version =  [[NSUserDefaults standardUserDefaults] stringForKey:@"rn_app_version"];
     
-    if(version == nil || [version isEqualToString:@""]){
-        return [NSArray arrayWithObjects:@"0",@"0",@"0", nil];
+    if(version == nil){
+        return [NSArray arrayWithObjects:[NSNumber numberWithInt:0],[NSNumber numberWithInt:0],[NSNumber numberWithInt:0], nil];
     }
     
     NSArray* array = [version componentsSeparatedByString:@"."];
@@ -128,7 +109,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     if([array count]==3){
         return array;
     }else {
-        return [NSArray arrayWithObjects:@"0",@"0",@"0", nil];
+        return [NSArray arrayWithObjects:[NSNumber numberWithInt:0],[NSNumber numberWithInt:0],[NSNumber numberWithInt:0], nil];
     }
 }
 
@@ -149,6 +130,10 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     NSMutableString *mString = [[NSMutableString alloc]init];
     for(int i = 0; i < [array count];i++){
         [mString appendString:[[array objectAtIndex:i]stringValue]];
+        if(i!=([array count]-1)){
+            [mString appendString:@"."];
+        }
+       
     }
     return mString;
 }
