@@ -35,10 +35,17 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     
     [self initVersioning];
     
-    NSString *currentStoredVersion = [self storedVersion];
-    NSString *currentVersion = [self currentVersion];
+    NSArray *currentStoredVersion = [self storedVersion];
+    NSNumber* majorStoredVersion = [currentStoredVersion objectAtIndex:0];
+    NSNumber* minorStoredVersion = [currentStoredVersion objectAtIndex:1];
+    NSNumber* versionStoredCode = [currentStoredVersion objectAtIndex:2];
     
-    if(![currentStoredVersion isEqualToString:currentVersion]){
+    NSArray  *currentVersion = [self currentVersion];
+    NSNumber* majorCurrentVersion = [currentVersion objectAtIndex:0];
+    NSNumber* minorCurrentVersion = [currentVersion objectAtIndex:1];
+    NSNumber* versionCurrentCode = [currentVersion objectAtIndex:2];
+    
+    if(majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode){
         //Execute native change
         [appDelegate performSelector:selector withObject:nil withObject:nil];
         
@@ -47,22 +54,36 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
         [wrapVersionDic setValue:currentStoredVersion forKey:@"currentStoredVersion"];
         [wrapVersionDic setValue:currentVersion forKey:@"currentVersion"];
         resolve(wrapVersionDic);
-        
-        [self setStoredVersion:currentVersion];
+        [self setStoredVersion:[self buildArrayNumberToString:currentVersion]];
     }else{
         rejecter(0,@"react-native-app-update: same version !",nil);
     }
 }
 
 +(void)initVersioning{
-    NSString *storedVersion = [self storedVersion];
-    if(storedVersion == nil || [storedVersion length]==0){
-        [self setStoredVersion:[self currentVersion]];
+    
+    NSArray *storedVersion = [self storedVersion];
+    NSNumber* majorVersion = [storedVersion objectAtIndex:0];
+    NSNumber* minorVersion = [storedVersion objectAtIndex:1];
+    NSNumber* versionCode = [storedVersion objectAtIndex:2];
+    
+    if(majorVersion == 0 && minorVersion == 0 && versionCode == 0){
+        //Lib is not initialized
+       
+        [self setStoredVersion: [self buildArrayNumberToString:[self currentVersion]]];
     }
 }
 
-+(NSString*)currentVersionName{
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+
++(NSArray*)currentVersionName{
+    NSString *currentVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    NSArray* array = [currentVersion componentsSeparatedByString:@"."];
+    array = [self buildNSNumberArrayWithStringArray:array];
+    if([array count]==2){
+        return array;
+    }else{
+        return [self buildNSNumberArrayWithStringArray:[NSArray arrayWithObjects:@"0",@"0", nil]];
+    }
 }
 
 +(int)currentVersionCode{
@@ -78,17 +99,46 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     }
 }
 
-+(NSString*)currentVersion{
-    return [self currentVersionName];
++(NSArray*)currentVersion{
+    NSArray* arrayCurrentVersionName = [self currentVersionName];
+    return [NSArray arrayWithObjects:[arrayCurrentVersionName objectAtIndex:0],[arrayCurrentVersionName objectAtIndex:1],[self currentVersionCode], nil];
 }
 
-+(NSString*)storedVersion{
-    return [[NSUserDefaults standardUserDefaults] stringForKey:@"rn_app_version"];;
++(NSArray*)storedVersion{
+    NSString *version =  [[NSUserDefaults standardUserDefaults] stringForKey:@"rn_app_version"];
+    
+    if(version == nil || [version isEqualToString:@""]){
+        return [NSArray arrayWithObjects:@"0",@"0",@"0", nil];
+    }
+    
+    NSArray* array = [version componentsSeparatedByString:@"."];
+    
+    if([array count]==3){
+        return array;
+    }else {
+        return [NSArray arrayWithObjects:@"0",@"0",@"0", nil];
+    }
 }
 
 +(void)setStoredVersion:(NSString*)version{
     [[NSUserDefaults standardUserDefaults] setValue:version forKey:@"rn_app_version"];
     [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSArray*)buildNSNumberArrayWithStringArray:(NSArray*)array{
+    NSMutableArray *arrayInt = [[NSMutableArray alloc]init];
+    for(int i = 0; i < [array count];i++){
+        [arrayInt addObject:[NSNumber numberWithInt:[[array objectAtIndex:i]intValue]]];
+    }
+    return arrayInt;
+}
+
++(NSString*)buildArrayNumberToString:(NSArray*)array{
+    NSMutableString *mString = [[NSMutableString alloc]init];
+    for(int i = 0; i < [array count];i++){
+        [mString appendString:[[array objectAtIndex:i]stringValue]];
+    }
+    return mString;
 }
 
 
