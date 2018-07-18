@@ -9,10 +9,10 @@
 RCT_EXPORT_MODULE()
 
 
-/*- (dispatch_queue_t)methodQueue
+- (dispatch_queue_t)methodQueue
 {
     return dispatch_get_main_queue();
-}*/
+}
 
 
 RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
@@ -39,7 +39,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     int minorStoredVersion = [[currentStoredVersion objectAtIndex:1]intValue];
     int versionStoredCode = [[currentStoredVersion objectAtIndex:2]intValue];
     
-    NSArray  *currentVersion = [self currentVersionName];
+    NSArray *currentVersion = [self currentVersionName];
     int majorCurrentVersion = [[currentVersion objectAtIndex:0]intValue];
     int minorCurrentVersion = [[currentVersion objectAtIndex:1]intValue];
     int versionCurrentCode = [[currentVersion objectAtIndex:2]intValue];
