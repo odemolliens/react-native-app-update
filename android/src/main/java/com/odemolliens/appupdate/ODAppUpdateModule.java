@@ -4,6 +4,8 @@ package com.odemolliens.appupdate;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -19,6 +21,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
 
     private final String S_SHARED_PREF_APP_VERSION = "S_SHARED_PREF_APP_VERSION";
     private final String S_SHARED_APP_VERSION_KEY = "S_SHARED_APP_VERSION_KEY";
+    private final String NAME_NOT_FOUND = "NAME_NOT_FOUND";
     private final ReactApplicationContext reactContext;
     private final AppVersionListener mListener;
 
@@ -37,7 +40,9 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        this.initVersioning(this.reactContext);
+        if (!this.initVersioning(this.reactContext)) {
+            resolve.reject("AppUpdate", "react-native-app-update: Couldn't init version!");
+        }
 
         String currentStoredVersion = getStoredVersion();
         String currentVersion = getCurrentVersion();
@@ -61,25 +66,46 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
     }
 
 
-    public void initVersioning(ReactApplicationContext context) {
+    public boolean initVersioning(ReactApplicationContext context) {
         String version = this.getStoredVersion();
         if (version == null) {
             //Init
             String currentVersion = getCurrentVersion();
+            if (currentVersion == NAME_NOT_FOUND) {
+                return false;
+            }
             this.setStoredVersion(currentVersion);
         }
+        return true;
     }
 
     private String getCurrentVersionName() {
-        return BuildConfig.VERSION_NAME;
+        try {
+            PackageInfo packageInfo = reactContext.getPackageManager().getPackageInfo(reactContext.getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return NAME_NOT_FOUND;
+        }
     }
 
     private int getCurrentVersionCode() {
-        return BuildConfig.VERSION_CODE;
+        try {
+            PackageInfo packageInfo = reactContext.getPackageManager().getPackageInfo(reactContext.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     private String getCurrentVersion() {
-        return getCurrentVersionName() + "." + getCurrentVersionCode();
+        String currentVersionName = getCurrentVersionName();
+        int currentVersionCode = getCurrentVersionCode();
+        if (currentVersionName == NAME_NOT_FOUND || currentVersionCode == -1) {
+            return NAME_NOT_FOUND;
+        }
+        return currentVersionName + "." + currentVersionCode;
     }
 
     private String getStoredVersion() {
