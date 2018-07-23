@@ -18,10 +18,8 @@ const { ODAppUpdate } = NativeModules;
 
 
 const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
+  ios: 'Hello world',
+  android: 'Hello world',
 });
 
 type Props = {};
@@ -30,8 +28,7 @@ export default class App extends Component<Props> {
   constructor(){
     super()
       ODAppUpdate.appVersion()
-        .then(response => console.info(response))
-        .catch(err => console.info(JSON.stringify(err)));
+        .then(response => console.info(response));
   }
 
   render() {
