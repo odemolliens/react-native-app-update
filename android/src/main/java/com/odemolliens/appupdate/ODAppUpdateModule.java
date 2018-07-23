@@ -15,13 +15,16 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.WritableMap;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import static android.content.Context.MODE_PRIVATE;
 
 public class ODAppUpdateModule extends ReactContextBaseJavaModule {
 
     private final String S_SHARED_PREF_APP_VERSION = "S_SHARED_PREF_APP_VERSION";
     private final String S_SHARED_APP_VERSION_KEY = "S_SHARED_APP_VERSION_KEY";
-    private final String NAME_NOT_FOUND = "NAME_NOT_FOUND";
     private final ReactApplicationContext reactContext;
     private final AppVersionListener mListener;
 
@@ -42,19 +45,58 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
 
         if (!this.initVersioning(this.reactContext)) {
             resolve.reject("AppUpdate", "react-native-app-update: Couldn't init version!");
+            return;
         }
 
         String currentStoredVersion = getStoredVersion();
         String currentVersion = getCurrentVersion();
+        if (currentVersion == null) {
+            resolve.reject("AppUpdate", "react-native-app-update: Couldn't get current version!");
+            return;
+        }
 
-        if (!currentStoredVersion.equals(currentVersion)) {
+        int[] storedArray = stringToIntArray(currentStoredVersion);
+        int[] currentArray = stringToIntArray(currentVersion);
+        if (storedArray == null || currentArray == null) {
+            resolve.reject("AppUpdate", "react-native-app-update: Version doesn't match required format!");
+            return;
+        }
+        int majorStoredVersion = storedArray[0];
+        int minorStoredVersion = storedArray[1];
+        int versionStoredCode = storedArray[2];
+        int majorCurrentVersion = currentArray[0];
+        int minorCurrentVersion = currentArray[1];
+        int versionCurrentCode = currentArray[2];
+
+        if (majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode) {
+            // Create Maps for native android
+            HashMap<String, Integer> nativeStoredMap = new HashMap<>();
+            nativeStoredMap.put("major", majorStoredVersion);
+            nativeStoredMap.put("minor", minorStoredVersion);
+            nativeStoredMap.put("version", versionStoredCode);
+            HashMap<String, Integer> nativeCurrentMap = new HashMap<>();
+            nativeCurrentMap.put("major", majorCurrentVersion);
+            nativeCurrentMap.put("minor", minorCurrentVersion);
+            nativeCurrentMap.put("version", versionCurrentCode);
+
             //Execute native change
-            this.mListener.checkMigrationAppVersion(currentStoredVersion, currentVersion);
+            this.mListener.checkMigrationAppVersion(nativeStoredMap, nativeCurrentMap);
+
+            // Create Maps for JS
+            WritableMap jsStoredMap = Arguments.createMap();
+            for (Map.Entry<String, Integer> entry : nativeStoredMap.entrySet()) {
+                jsStoredMap.putInt(entry.getKey(), entry.getValue());
+            }
+            WritableMap jsCurrentMap = Arguments.createMap();
+            for (Map.Entry<String, Integer> entry : nativeStoredMap.entrySet()) {
+                jsCurrentMap.putInt(entry.getKey(), entry.getValue());
+            }
 
             //Fw to RN
             WritableMap map = Arguments.createMap();
-            map.putString("currentStoredVersion", currentStoredVersion);
-            map.putString("currentVersion", currentVersion);
+
+            map.putMap("currentStoredVersion", jsStoredMap);
+            map.putMap("currentVersion", jsCurrentMap);
             resolve.resolve(map);
 
             //Update current version stored
@@ -71,7 +113,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
         if (version == null) {
             //Init
             String currentVersion = getCurrentVersion();
-            if (currentVersion == NAME_NOT_FOUND) {
+            if (currentVersion == null) {
                 return false;
             }
             this.setStoredVersion(currentVersion);
@@ -85,7 +127,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
             return packageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            return NAME_NOT_FOUND;
+            return null;
         }
     }
 
@@ -102,8 +144,8 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
     private String getCurrentVersion() {
         String currentVersionName = getCurrentVersionName();
         int currentVersionCode = getCurrentVersionCode();
-        if (currentVersionName == NAME_NOT_FOUND || currentVersionCode == -1) {
-            return NAME_NOT_FOUND;
+        if (currentVersionName == null || currentVersionCode == -1) {
+            return null;
         }
         return currentVersionName + "." + currentVersionCode;
     }
@@ -115,6 +157,18 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
 
     private void setStoredVersion(String version) {
         this.reactContext.getSharedPreferences(S_SHARED_PREF_APP_VERSION, MODE_PRIVATE).edit().putString(S_SHARED_APP_VERSION_KEY, version).apply();
+    }
+
+    private int[] stringToIntArray(String version) {
+        String[] stringArray = version.split(Pattern.quote("."));
+        if (stringArray.length != 3) {
+            return null;
+        }
+        int[] intArray = new int[stringArray.length];
+        for (int i = 0; i < stringArray.length; i++) {
+            intArray[i] = Integer.parseInt(stringArray[i]);
+        }
+        return intArray;
     }
 
     @Override

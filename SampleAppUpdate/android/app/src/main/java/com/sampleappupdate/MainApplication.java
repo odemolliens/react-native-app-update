@@ -1,6 +1,7 @@
 package com.sampleappupdate;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.facebook.react.ReactApplication;
 import com.odemolliens.appupdate.AppVersionListener;
@@ -12,6 +13,7 @@ import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -27,10 +29,14 @@ public class MainApplication extends Application implements ReactApplication {
                     new MainReactPackage(),
                     new ODAppUpdatePackage(new AppVersionListener() {
                         @Override
-                        public void checkMigrationAppVersion(String previousversion, String currentversion) {
-                            if (previousversion.equals("1.0.1") && currentversion.equals("1.0.2")) {
-                                //Clean native stuff
-                            }
+                        public void checkMigrationAppVersion(Map<String, Integer> storedVersion, Map<String, Integer> currentversion) {
+                            int majorStoredVersion = storedVersion.get("major");
+                            int minorStoredVersion = storedVersion.get("minor");
+                            int versionStoredCode = storedVersion.get("version");
+                            int majorCurrentVersion = currentversion.get("major");
+                            int minorCurrentVersion = currentversion.get("minor");
+                            int versionCurrentCode = currentversion.get("version");
+                            Log.d("SampleAppUpdate", storedVersion + "\n" + currentversion);
                         }
                     })
             );
