@@ -30,6 +30,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
 
     if(![appDelegate respondsToSelector:selector]){
         rejecter(0,@"react-native-app-update: Delegate is not implemented!",[NSError errorWithDomain:@"react-native-app-update" code:0 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"react-native-app-update",@"Delegate is not implemented!", nil]]);
+        return;
     }
     
     [self initVersioning];
@@ -69,6 +70,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
         [self setStoredVersion:[self buildArrayNumberToString:[self currentVersionName]]];
     }else{
         rejecter(0,@"react-native-app-update: same version !",[NSError errorWithDomain:@"react-native-app-update" code:0 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"react-native-app-update",@"same version !", nil]]);
+        return;
     }
 }
 
