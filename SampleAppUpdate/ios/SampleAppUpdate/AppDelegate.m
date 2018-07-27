@@ -41,15 +41,15 @@
   return YES;
 }
 
-- (void)checkMigrationAppVersion:(NSArray*)storedVersion andCurrentVersion:(NSArray*)currentVersion {
+- (void)checkMigrationAppVersion:(NSMutableDictionary*)storedVersion andCurrentVersion:(NSMutableDictionary*)currentVersion {
   
-  int majorStoredVersion = [[storedVersion objectAtIndex:0]intValue];
-  int minorStoredVersion = [[storedVersion objectAtIndex:1]intValue];
-  int versionStoredCode = [[storedVersion objectAtIndex:2]intValue];
+  int majorStoredVersion = [[storedVersion objectForKey:@"major"]intValue];
+  int minorStoredVersion = [[storedVersion objectForKey:@"minor"]intValue];
+  int versionStoredCode = [[storedVersion objectForKey:@"version"]intValue];
   
-  int majorCurrentVersion = [[currentVersion objectAtIndex:0]intValue];
-  int minorCurrentVersion = [[currentVersion objectAtIndex:1]intValue];
-  int versionCurrentCode = [[currentVersion objectAtIndex:2]intValue];
+  int majorCurrentVersion = [[currentVersion objectForKey:@"major"]intValue];
+  int minorCurrentVersion = [[currentVersion objectForKey:@"minor"]intValue];
+  int versionCurrentCode = [[currentVersion objectForKey:@"version"]intValue];
   
   //New version of the app
   if(majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode){
