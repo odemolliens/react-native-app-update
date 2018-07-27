@@ -26,9 +26,16 @@ type Props = {};
 export default class App extends Component<Props> {
 
   constructor(){
-    super()
-      ODAppUpdate.appVersion()
-        .then(response => console.info(response));
+    super();
+    ODAppUpdate.appVersion()
+      .then(response => {
+        // New version installed
+        console.warn(response)
+      })
+        .catch(error => {
+            // No update installed (or error occured)
+          console.warn(error.message)
+        });
   }
 
   render() {
