@@ -109,6 +109,14 @@ import  ODAppUpdate  from  'react-native-app-update';
 // (maybe in the constructor of your App component ?)
 ODAppUpdate.appVersion()
       .then(response => {
+      	let majorStoredVersion = response.currentStoredVersion.major;
+        let minorStoredVersion = response.currentStoredVersion.minor;
+        let versionStoredCode = response.currentStoredVersion.version;
+
+        let majorCurrentVersion = response.currentVersion.major;
+        let minorCurrentVersion = response.currentVersion.minor;
+        let versionCurrentCode = response.currentVersion.version;
+	
         // Handle new update
       })
       .catch(error => {
