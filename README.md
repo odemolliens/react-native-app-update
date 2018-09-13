@@ -61,7 +61,8 @@ implementation project(':react-native-app-update')
 - Add the new protocol:
 
 ```
-- (void)checkMigrationAppVersion:(NSMutableDictionary*)storedVersion andCurrentVersion:(NSMutableDictionary*)currentVersion {
+- (void)checkMigrationAppVersion:(NSMutableDictionary*)storedVersion
+		andCurrentVersion:(NSMutableDictionary*)currentVersion {
   int majorStoredVersion = [[storedVersion objectForKey:@"major"]intValue];
   int minorStoredVersion = [[storedVersion objectForKey:@"minor"]intValue];
   int versionStoredCode = [[storedVersion objectForKey:@"version"]intValue];
@@ -83,7 +84,8 @@ implementation project(':react-native-app-update')
 ```
 new ODAppUpdatePackage(new AppVersionListener() {  
 	    @Override  
-	    public void checkMigrationAppVersion(Map<String, Integer> storedVersion, Map<String, Integer> currentversion) {
+	    public void checkMigrationAppVersion(Map<String, Integer> storedVersion,
+	    			Map<String, Integer> currentversion) {
             int majorStoredVersion = storedVersion.get("major");
             int minorStoredVersion = storedVersion.get("minor");
             int versionStoredCode = storedVersion.get("version");
@@ -103,7 +105,8 @@ new ODAppUpdatePackage(new AppVersionListener() {
 
 import  ODAppUpdate  from  'react-native-app-update';
 
-// Put this where you want to check and handle the app update (maybe in the constructor of your App component ?)
+// Put this where you want to check and handle the app update
+// (maybe in the constructor of your App component ?)
 ODAppUpdate.appVersion()
       .then(response => {
         // Handle new update
