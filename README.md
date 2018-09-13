@@ -1,17 +1,8 @@
-
-  
-
 # react-native-app-update
-
-  
 
 ## Getting started
 
-  
-
 `$ npm install react-native-app-update --save`
-
-  
 
 ### Mostly automatic installation
 
