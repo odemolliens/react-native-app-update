@@ -2,24 +2,11 @@
 
 ## Getting started
 
-`$ npm install react-native-app-update --save`
-
-### Mostly automatic installation
-
-  
-
-`$ react-native link react-native-app-update`
-
-  
+`$ npm install github:odemolliens/react-native-app-update#0.0.11 --save`
 
 ### Manual installation
 
-  
-  
-
 #### iOS
-
-  
 
 1. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 
@@ -29,11 +16,7 @@
 
 4. Run your project (`Cmd+R`)<
 
-  
-
 #### Android
-
-  
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
 
@@ -59,16 +42,12 @@ compile project(':react-native-app-update')
 
 ```
 
-  
-  
-
 ### Setup iOS
-
-  
 
 1. Open up `AppDelegate.m` 
 - Add a new import `#import <ODAppUpdate/AppUpdateListenerSingleton.h>`
 - Add a private interface :
+
  ```
 @interface AppDelegate () <AppVersionListener>
 
@@ -78,9 +57,18 @@ compile project(':react-native-app-update')
 
 - Add `[AppUpdateListenerSingleton sharedManager:self];` in the method `application:didFinishLaunchingWithOptions`
 - Add the new protocol:
+
 ```
-- (void)checkMigrationAppVersion:(NSString *)previousversion andCurrentVersion:(NSString *)currentversion {
-        //Do something 
+- (void)checkMigrationAppVersion:(NSMutableDictionary*)storedVersion andCurrentVersion:(NSMutableDictionary*)currentVersion {
+  int majorStoredVersion = [[storedVersion objectForKey:@"major"]intValue];
+  int minorStoredVersion = [[storedVersion objectForKey:@"minor"]intValue];
+  int versionStoredCode = [[storedVersion objectForKey:@"version"]intValue];
+  
+  int majorCurrentVersion = [[currentVersion objectForKey:@"major"]intValue];
+  int minorCurrentVersion = [[currentVersion objectForKey:@"minor"]intValue];
+  int versionCurrentCode = [[currentVersion objectForKey:@"version"]intValue];
+  
+  // Check and handle app version update
 }
 ```
   
@@ -88,15 +76,23 @@ compile project(':react-native-app-update')
  
 1. Open up `MainApplication.java`:
 - Add in the  `getPackages` method:
+
 ```
 new ODAppUpdatePackage(new AppVersionListener() {  
 	    @Override  
-	    public void checkMigrationAppVersion(String previousversion, String currentversion) {   
-        //Do something 
+	    public void checkMigrationAppVersion(Map<String, Integer> storedVersion, Map<String, Integer> currentversion) {
+            int majorStoredVersion = storedVersion.get("major");
+            int minorStoredVersion = storedVersion.get("minor");
+            int versionStoredCode = storedVersion.get("version");
+	    
+            int majorCurrentVersion = currentversion.get("major");
+            int minorCurrentVersion = currentversion.get("minor");
+            int versionCurrentCode = currentversion.get("version");
+	    
+	    // Check and handle app version update
         }  
 })
 ```
-
 
 ## Usage
 
