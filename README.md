@@ -38,14 +38,16 @@ project(':react-native-app-update').projectDir = new File(rootProject.projectDir
 
 ```
 
-compile project(':react-native-app-update')
+implementation project(':react-native-app-update')
 
 ```
 
 ### Setup iOS
 
 1. Open up `AppDelegate.m` 
+
 - Add a new import `#import <ODAppUpdate/AppUpdateListenerSingleton.h>`
+
 - Add a private interface :
 
  ```
@@ -75,6 +77,7 @@ compile project(':react-native-app-update')
  ### Setup Android
  
 1. Open up `MainApplication.java`:
+
 - Add in the  `getPackages` method:
 
 ```
@@ -100,9 +103,14 @@ new ODAppUpdatePackage(new AppVersionListener() {
 
 import  ODAppUpdate  from  'react-native-app-update';
 
-  
-
-// TODO: What to do with the module?
+// Put this where you want to check and handle the app update (maybe in the constructor of your App component ?)
+ODAppUpdate.appVersion()
+      .then(response => {
+        // Handle new update
+      })
+      .catch(error => {
+        // No update installed (or error occured)
+      });
 
 ODAppUpdate;
 
