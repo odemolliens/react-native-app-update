@@ -2,7 +2,7 @@
 
 ## Getting started
 
-`$ npm install github:odemolliens/react-native-app-update#0.0.11 --save`
+`$ npm install github:odemolliens/react-native-app-update#1.0.0 --save`
 
 ### Manual installation
 
