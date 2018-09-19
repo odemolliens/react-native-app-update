@@ -43,7 +43,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        if (!this.initVersioning(this.reactContext)) {
+        if (!this.initVersioning()) {
             resolve.reject("AppUpdate", "react-native-app-update: Couldn't init version!");
             return;
         }
@@ -61,6 +61,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
             resolve.reject("AppUpdate", "react-native-app-update: Version doesn't match required format!");
             return;
         }
+
         int majorStoredVersion = storedArray[0];
         int minorStoredVersion = storedArray[1];
         int versionStoredCode = storedArray[2];
@@ -68,49 +69,44 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
         int minorCurrentVersion = currentArray[1];
         int versionCurrentCode = currentArray[2];
 
-        if (majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode) {
-            // Create Maps for native android
-            HashMap<String, Integer> nativeStoredMap = new HashMap<>();
-            nativeStoredMap.put("major", majorStoredVersion);
-            nativeStoredMap.put("minor", minorStoredVersion);
-            nativeStoredMap.put("version", versionStoredCode);
-            HashMap<String, Integer> nativeCurrentMap = new HashMap<>();
-            nativeCurrentMap.put("major", majorCurrentVersion);
-            nativeCurrentMap.put("minor", minorCurrentVersion);
-            nativeCurrentMap.put("version", versionCurrentCode);
+        // Create Maps for native android
+        HashMap<String, Integer> nativeStoredMap = new HashMap<>();
+        nativeStoredMap.put("major", majorStoredVersion);
+        nativeStoredMap.put("minor", minorStoredVersion);
+        nativeStoredMap.put("version", versionStoredCode);
+        HashMap<String, Integer> nativeCurrentMap = new HashMap<>();
+        nativeCurrentMap.put("major", majorCurrentVersion);
+        nativeCurrentMap.put("minor", minorCurrentVersion);
+        nativeCurrentMap.put("version", versionCurrentCode);
 
-            //Execute native change
-            this.mListener.checkMigrationAppVersion(nativeStoredMap, nativeCurrentMap);
+        //Execute native change
+        this.mListener.checkMigrationAppVersion(nativeStoredMap, nativeCurrentMap);
 
-            // Create Maps for JS
-            WritableMap jsStoredMap = Arguments.createMap();
-            for (Map.Entry<String, Integer> entry : nativeStoredMap.entrySet()) {
-                jsStoredMap.putInt(entry.getKey(), entry.getValue());
-            }
-            WritableMap jsCurrentMap = Arguments.createMap();
-            for (Map.Entry<String, Integer> entry : nativeStoredMap.entrySet()) {
-                jsCurrentMap.putInt(entry.getKey(), entry.getValue());
-            }
-
-            //Fw to RN
-            WritableMap map = Arguments.createMap();
-
-            map.putMap("currentStoredVersion", jsStoredMap);
-            map.putMap("currentVersion", jsCurrentMap);
-            resolve.resolve(map);
-
-            //Update current version stored
-            this.setStoredVersion(currentVersion);
-        } else {
-            resolve.reject(currentVersion, "react-native-app-update: same version !");
+        // Create Maps for JS
+        WritableMap jsStoredMap = Arguments.createMap();
+        for (Map.Entry<String, Integer> entry : nativeStoredMap.entrySet()) {
+            jsStoredMap.putInt(entry.getKey(), entry.getValue());
+        }
+        WritableMap jsCurrentMap = Arguments.createMap();
+        for (Map.Entry<String, Integer> entry : nativeCurrentMap.entrySet()) {
+            jsCurrentMap.putInt(entry.getKey(), entry.getValue());
         }
 
+        //Fw to RN
+        WritableMap map = Arguments.createMap();
+
+        map.putMap("currentStoredVersion", jsStoredMap);
+        map.putMap("currentVersion", jsCurrentMap);
+        resolve.resolve(map);
+
+        //Update current version stored
+        this.setStoredVersion(currentVersion);
     }
 
 
-    public boolean initVersioning(ReactApplicationContext context) {
+    public boolean initVersioning() {
         String version = this.getStoredVersion();
-        if (version == null) {
+        if (version == null || stringToIntArray(version) == null) {
             //Init
             String currentVersion = getCurrentVersion();
             if (currentVersion == null) {
@@ -121,7 +117,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
         return true;
     }
 
-    private String getCurrentVersionName() {
+    private String getCurrentVersion() {
         try {
             PackageInfo packageInfo = reactContext.getPackageManager().getPackageInfo(reactContext.getPackageName(), 0);
             return packageInfo.versionName;
@@ -129,25 +125,6 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private int getCurrentVersionCode() {
-        try {
-            PackageInfo packageInfo = reactContext.getPackageManager().getPackageInfo(reactContext.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            return -1;
-        }
-    }
-
-    private String getCurrentVersion() {
-        String currentVersionName = getCurrentVersionName();
-        int currentVersionCode = getCurrentVersionCode();
-        if (currentVersionName == null || currentVersionCode == -1) {
-            return null;
-        }
-        return currentVersionName + "." + currentVersionCode;
     }
 
     private String getStoredVersion() {
