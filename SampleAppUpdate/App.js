@@ -30,7 +30,6 @@ export default class App extends Component<Props> {
     ODAppUpdate.appVersion()
       .then(response => {
         // New version installed
-        console.warn('good')
         console.log(response)
       })
         .catch(error => {

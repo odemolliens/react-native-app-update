@@ -45,33 +45,33 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     int minorCurrentVersion = [[currentVersion objectAtIndex:1]intValue];
     int versionCurrentCode = [[currentVersion objectAtIndex:2]intValue];
     
-    if(majorCurrentVersion > majorStoredVersion || minorCurrentVersion > minorStoredVersion || versionCurrentCode > versionStoredCode){
-        //Fw to RN
-        NSMutableDictionary* wrapVersionDic = [[NSMutableDictionary alloc]init];
-        
-        NSMutableDictionary* wrapStoredDic = [[NSMutableDictionary alloc]init];
-        [wrapStoredDic setValue:[NSNumber numberWithInt:majorStoredVersion] forKey:@"major"];
-        [wrapStoredDic setValue:[NSNumber numberWithInt:minorStoredVersion] forKey:@"minor"];
-        [wrapStoredDic setValue:[NSNumber numberWithInt:versionStoredCode] forKey:@"version"];
-        
-        NSMutableDictionary* wrapCurrentDic = [[NSMutableDictionary alloc]init];
-        [wrapCurrentDic setValue:[NSNumber numberWithInt:majorCurrentVersion] forKey:@"major"];
-        [wrapCurrentDic setValue:[NSNumber numberWithInt:minorCurrentVersion] forKey:@"minor"];
-        [wrapCurrentDic setValue:[NSNumber numberWithInt:versionCurrentCode] forKey:@"version"];
-        
-        [wrapVersionDic setValue:wrapStoredDic forKey:@"currentStoredVersion"];
-        [wrapVersionDic setValue:wrapCurrentDic forKey:@"currentVersion"];
-        
-        resolve(wrapVersionDic);
-        
-        //Execute native change
-        [appDelegate performSelector:selector withObject:wrapStoredDic withObject:wrapCurrentDic];
-        
-        [self setStoredVersion:[self buildArrayNumberToString:[self currentVersionName]]];
-    }else{
-        rejecter(0,@"react-native-app-update: same version !",[NSError errorWithDomain:@"react-native-app-update" code:0 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"react-native-app-update",@"same version !", nil]]);
+    if (majorCurrentVersion == 0 && minorCurrentVersion == 0 && versionCurrentCode == 0) {
+        rejecter(0, @"react-native-app-update: Version doesn't match required format!",
+                 [NSError errorWithDomain:@"react-native-app-update" code:0 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"react-native-app-update",@"Version doesn't match required format", nil]]);
         return;
     }
+    
+    NSMutableDictionary* wrapVersionDic = [[NSMutableDictionary alloc]init];
+    
+    NSMutableDictionary* wrapStoredDic = [[NSMutableDictionary alloc]init];
+    [wrapStoredDic setValue:[NSNumber numberWithInt:majorStoredVersion] forKey:@"major"];
+    [wrapStoredDic setValue:[NSNumber numberWithInt:minorStoredVersion] forKey:@"minor"];
+    [wrapStoredDic setValue:[NSNumber numberWithInt:versionStoredCode] forKey:@"version"];
+    
+    NSMutableDictionary* wrapCurrentDic = [[NSMutableDictionary alloc]init];
+    [wrapCurrentDic setValue:[NSNumber numberWithInt:majorCurrentVersion] forKey:@"major"];
+    [wrapCurrentDic setValue:[NSNumber numberWithInt:minorCurrentVersion] forKey:@"minor"];
+    [wrapCurrentDic setValue:[NSNumber numberWithInt:versionCurrentCode] forKey:@"version"];
+    
+    [wrapVersionDic setValue:wrapStoredDic forKey:@"currentStoredVersion"];
+    [wrapVersionDic setValue:wrapCurrentDic forKey:@"currentVersion"];
+    
+    resolve(wrapVersionDic);
+    
+    //Execute native change
+    [appDelegate performSelector:selector withObject:wrapStoredDic withObject:wrapCurrentDic];
+    
+    [self setStoredVersion:[self buildArrayNumberToString:[self currentVersionName]]];
 }
 
 +(void)initVersioning{
@@ -95,7 +95,7 @@ RCT_EXPORT_METHOD(appVersion:(RCTPromiseResolveBlock)resolve
     if([array count]==3){
         return array;
     }else{
-        return [self buildNSNumberArrayWithStringArray:[NSArray arrayWithObjects:@"0",@"0", nil]];
+        return [self buildNSNumberArrayWithStringArray:[NSArray arrayWithObjects:@"0",@"0",@"0",nil]];
     }
 }
 

@@ -106,7 +106,7 @@ public class ODAppUpdateModule extends ReactContextBaseJavaModule {
 
     public boolean initVersioning() {
         String version = this.getStoredVersion();
-        if (version == null || stringToIntArray(version) == null) {
+        if (version == null) {
             //Init
             String currentVersion = getCurrentVersion();
             if (currentVersion == null) {

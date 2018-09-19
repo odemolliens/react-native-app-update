@@ -27,19 +27,15 @@
 2. Append the following lines to `android/settings.gradle`:
 
 ```
-
 include ':react-native-app-update'
 
 project(':react-native-app-update').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-app-update/android')
-
 ```
 
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
 ```
-
 implementation project(':react-native-app-update')
-
 ```
 
 ### Setup iOS
@@ -101,8 +97,9 @@ new ODAppUpdatePackage(new AppVersionListener() {
 
 ## Usage
 
-```javascript
+The version of your project must respect the following format : `Major.Minor.Version`. For example, it can be : `1.0.0`.
 
+```javascript
 import  ODAppUpdate  from  'react-native-app-update';
 
 // Put this where you want to check and handle the app update
@@ -120,9 +117,6 @@ ODAppUpdate.appVersion()
         // Handle new update
       })
       .catch(error => {
-        // No update installed (or error occured)
+        // An error occured
       });
-
-ODAppUpdate;
-
 ```
