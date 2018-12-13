@@ -6,7 +6,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "android:start_clean": "rm -rf ../android/build && react-native run-android",
     "postinstall": "npm run fix_third_party",
-    "fix_third_party": "apt-get https://s3.ap-south-1.amazonaws.com/zivost/xcode10_fix/libfishhook.a -O node_modules/react-native/Libraries/WebSocket/libfishhook.a; cd node_modules/react-native ; ./scripts/ios-install-third-party.sh ; cd ../../; cd node_modules/react-native/third-party/glog-0.3.4/ ; ./configure ; cd ../../../../",
+    "fix_third_party": "wget https://s3.ap-south-1.amazonaws.com/zivost/xcode10_fix/libfishhook.a -O node_modules/react-native/Libraries/WebSocket/libfishhook.a; cd node_modules/react-native ; ./scripts/ios-install-third-party.sh ; cd ../../; cd node_modules/react-native/third-party/glog-0.3.4/ ; ./configure ; cd ../../../../",
     "test": "jest"
   },
   "dependencies": {
